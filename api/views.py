@@ -1,19 +1,17 @@
-import json
 from django.shortcuts import render
-from django.http import JsonResponse
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from backend.records.models import Record
 
 # Create your views here.
 
 
+@api_view(["GET"])
 def api_home(request, *args, **kwargs):
-    body = request.body
-    data = {}
-    try:
-        data = json.loads(body)
-    except:
-        pass
-    data['params'] = request.GET
-    data['content_type'] = request.content_type
-    data['headers'] = dict(request.headers)
-    print(data)
-    return JsonResponse(data)
+    """
+    DRF API View
+    """
+    model_data = Record.objects.all().order_by("?").first()
+    return Response(model_data)
