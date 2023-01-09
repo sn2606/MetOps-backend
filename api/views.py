@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from backend.records.models import Record
+from records.models import Record
 
 # Create your views here.
 
