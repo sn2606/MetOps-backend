@@ -30,5 +30,5 @@ class RecordForQuery(models.Model):
     id = models.BigAutoField(primary_key=True)
     query_id = models.ForeignKey(
         MetQuery, related_name='query_id', on_delete=models.CASCADE)
-    record_id = models.ForeignKey(
+    record_id = models.OneToOneField(
         Record, related_name='record_id', on_delete=models.CASCADE)
