@@ -11,7 +11,7 @@ from records.serializers import RecordSerializer
 # Create your views here.
 
 
-@api_view(["GET"])
+@api_view(['GET'])
 def api_home(request, *args, **kwargs):
     """
     DRF API View
