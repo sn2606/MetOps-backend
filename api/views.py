@@ -15,7 +15,7 @@ def api_home(request, *args, **kwargs):
     DRF API View
     """
     serializer = MetQuerySerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         instance = serializer.save()
         return Response(serializer.data)
     else:
