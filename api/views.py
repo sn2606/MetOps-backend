@@ -3,15 +3,20 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from records.models import Record
+from query.models import MetQuery
+from query.serializers import MetQuerySerializer
 
 # Create your views here.
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def api_home(request, *args, **kwargs):
     """
     DRF API View
     """
-    model_data = Record.objects.all().order_by("?").first()
-    return Response(model_data)
+    serializer = MetQuerySerializer(data=request.data)
+    if serializer.is_valid():
+        instance = serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
