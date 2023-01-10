@@ -1,7 +1,5 @@
 from django.db import models
 from query.models import MetQuery
-from metpy.calc import virtual_temperature, mixing_ratio_from_relative_humidity
-from metpy.units import units
 
 # Create your models here.
 
@@ -17,11 +15,15 @@ class Record(models.Model):
 
     @property
     def virtual_temp(self):
-        p = self.pressure * units.hPa
-        T = self.temperature * units.degC
-        rh = self.relative_humidity / 100
-        mix_ratio = mixing_ratio_from_relative_humidity(p, T, rh).to('g/kg')
-        return virtual_temperature(T, mix_ratio * units('g/kg'))
+        T = float(self.temperature)
+        p = float(self.pressure)
+        rh = float(self.relative_humidity)
+        exp = 7.5*(T/(T + 237.7))
+        es = 6.11 * pow(10, exp)
+        ws = 621.9569100577033 * (es/(p - es))
+        w = rh * ws
+        vt = T * ((w + 0.6219569100577033)/(0.6219569100577033 * (1 + w)))
+        return "%.4f" % vt
 
 
 class RecordForQuery(models.Model):

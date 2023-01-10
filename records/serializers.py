@@ -3,10 +3,19 @@ from rest_framework import serializers
 from .models import Record, RecordForQuery
 
 
-class MetQuerySerializer(serializers.ModelSerializer):
+class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
-        fields = '__all__'
+        fields = [
+            'id',
+            'height',
+            'temperature',
+            'pressure',
+            'relative_humidity',
+            'wind_speed',
+            'wind_direction',
+            'virtual_temp'
+        ]
 
 
 class RecordForQuerySerializer(serializers.ModelSerializer):

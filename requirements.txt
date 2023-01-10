@@ -4,4 +4,3 @@ pyyaml
 requests
 django-cors-headers
 psycopg2
-metpy
