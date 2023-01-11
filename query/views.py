@@ -142,4 +142,10 @@ def get_meteomatics_response(request, *args, **kwargs):
     except:
         return Response('Sorry, some error occured on our side')
 
-# class QueryListAPIView(generics.ListAPIView):
+
+class QueryListAPIView(generics.ListAPIView):
+    queryset = MetQuery.objects.all()
+    serializer_class = MetQuerySerializer
+
+
+query_list_view = QueryListAPIView.as_view()
