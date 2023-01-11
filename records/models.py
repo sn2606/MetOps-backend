@@ -5,6 +5,9 @@ from query.models import MetQuery
 
 
 class Record(models.Model):
+    """
+    Values of one row in the data table
+    """
     id = models.BigAutoField(primary_key=True)
     height = models.IntegerField()
     temperature = models.DecimalField(max_digits=10, decimal_places=4)
@@ -15,6 +18,9 @@ class Record(models.Model):
 
     @property
     def virtual_temp(self):
+        """
+        Return Virtual Temperature given Temperature, Pressure and Relative Humiditys
+        """
         T = float(self.temperature)
         p = float(self.pressure)
         rh = float(self.relative_humidity)
@@ -27,6 +33,9 @@ class Record(models.Model):
 
 
 class RecordForQuery(models.Model):
+    """
+    Normalization of database: to get the record ids that correspond to a query and vice versa
+    """
     id = models.BigAutoField(primary_key=True)
     query_id = models.ForeignKey(
         MetQuery, related_name='query_id', on_delete=models.CASCADE)
