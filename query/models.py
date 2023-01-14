@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from django.contrib.auth.models import User
 import requests
 
 # Create your models here.
@@ -26,5 +26,5 @@ class QueryForUser(models.Model):
     id = models.BigAutoField(primary_key=True)
     user_id = models.ForeignKey(
         User, related_name='user_id', on_delete=models.CASCADE)
-    query_id = models.ForeignKey(
+    query_id = models.OneToOneField(
         MetQuery, related_name='query_id_main', on_delete=models.CASCADE)
