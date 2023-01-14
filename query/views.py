@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 from random import uniform
 from re import split, findall
 from datetime import datetime
@@ -59,6 +60,21 @@ def generate_random_data_response(latitude: float, longitude: float, parameters:
     return response
 
 
+def virtual_temp(temperature, pressure, relative_humidity):
+    """
+    Return Virtual Temperature given Temperature, Pressure and Relative Humidity
+    """
+    T = float(temperature)
+    p = float(pressure)
+    rh = float(relative_humidity)
+    exp = 7.5*(T/(T + 237.7))
+    es = 6.11 * pow(10, exp)
+    ws = 621.9569100577033 * (es/(p - es))
+    w = rh * ws
+    vt = T * ((w + 0.6219569100577033)/(0.6219569100577033 * (1 + w)))
+    return vt
+
+
 def process_response_data(data, latitude: float, longitude: float, invl: int, max: int):
     """
     Function that takes meteomatics response JSON as input and gives output analogical to the record model
@@ -86,9 +102,13 @@ def process_response_data(data, latitude: float, longitude: float, invl: int, ma
         unit = split('[:]', param)[1]
         ud[unit][int(ht/invl)-1] = reading['coordinates'][0]['dates'][0]['value']
 
+    virtual_temperature = [virtual_temp(
+        temperature[i], pressure[i], relative_humidity[i]) for i in range(n)]
+
     records = [{
         'height': height[i],
         'temperature': temperature[i],
+        'virtual_temperature': virtual_temperature[i],
         'pressure': pressure[i],
         'relative_humidity': relative_humidity[i],
         'wind_speed': wind_speed[i],
@@ -96,6 +116,7 @@ def process_response_data(data, latitude: float, longitude: float, invl: int, ma
     } for i in range(n)]
 
     result = {
+        'status': 200,
         'latitude': latitude,
         'longitude': longitude,
         'records': records
@@ -125,22 +146,31 @@ def generate_parameter_list(invl, max):
 
 @api_view(["GET"])
 def get_meteomatics_response(request, *args, **kwargs):
-    latitude = request.query_params.get('latitude')
-    longitude = request.query_params.get('longitude')
-    username = 'armamentresearchanddevelopmentestablishment_nayak'
-    datetimenow = datetime.utcnow().strftime('%Y-%d-%mT%H:%M:%SZ')
-    parameters = generate_parameter_list(200, 20000)
-    # url = f'https://api.meteomatics.com/{datetimenow}--{datetimenow}/{",".join(parameters)}/{latitude},{longitude}/json?model=mix'
-    # response = meteomatics.api.query_api(
-    #     url=url, username=username, password=password, request_type="GET")
     try:
-        response = generate_random_data_response(
-            latitude=latitude, longitude=longitude, parameters=parameters, date=datetimenow, username=username)
-        result = process_response_data(
-            data=response, latitude=latitude, longitude=longitude, invl=200, max=20000)
-        return Response(result)
-    except:
-        return Response('Sorry, some error occured on our side')
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        invl = 100
+        max = 20000
+        if latitude and longitude:
+            pass
+        else:
+            raise Exception('Please provide latitude and longitude')
+        username = 'armamentresearchanddevelopmentestablishment_nayak'
+        datetimenow = datetime.utcnow().strftime('%Y-%d-%mT%H:%M:%SZ')
+        parameters = generate_parameter_list(invl, max)
+        # url = f'https://api.meteomatics.com/{datetimenow}--{datetimenow}/{",".join(parameters)}/{latitude},{longitude}/json?model=mix'
+        # response = meteomatics.api.query_api(
+        #     url=url, username=username, password=password, request_type="GET")
+        try:
+            response = generate_random_data_response(
+                latitude=latitude, longitude=longitude, parameters=parameters, date=datetimenow, username=username)
+            result = process_response_data(
+                data=response, latitude=latitude, longitude=longitude, invl=invl, max=max)
+            return Response(result)
+        except:
+            return Response('Sorry, some error occured on our side')
+    except Exception as e:
+        return Response(str(e), status=404)
 
 
 class QueryListAPIView(generics.ListAPIView):
