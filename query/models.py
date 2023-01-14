@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from users.models import User
 import requests
 
 # Create your models here.
-User = get_user_model()
 
 
 class MetQuery(models.Model):
