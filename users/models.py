@@ -1,6 +1,9 @@
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from phonenumber_field.modelfields import PhoneNumberField
+from django.apps import apps
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -8,14 +11,25 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, phone_no, password=None, password2=None):
+    def create_user(self, username, first_name, last_name, email, phone_no, password=None, password2=None):
         """
-        Creates and saves a User with the given email, phone_no and password.
+        Creates and saves a User with the given username, first_name, last_name, email, phone_no and password.
         """
         if not email:
             raise ValueError('User must have an email address')
 
+        if not username:
+            raise ValueError("The given username must be set")
+
+        GlobalUserModel = apps.get_model(
+            self.model._meta.app_label, self.model._meta.object_name
+        )
+        username = GlobalUserModel.normalize_username(username)
+
         user = self.model(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
             email=self.normalize_email(email),
             phone_no=phone_no,
         )
@@ -41,6 +55,25 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    """
+    A user of the application
+    """
+    username_validator = UnicodeUsernameValidator()
+
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        unique=True,
+        help_text=_(
+            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        ),
+        validators=[username_validator],
+        error_messages={
+            "unique": _("A user with that username already exists."),
+        },
+    )
+    first_name = models.CharField(_("first name"), max_length=150)
+    last_name = models.CharField(_("last name"), max_length=150)
     email = models.EmailField(
         verbose_name='Email',
         max_length=255,
@@ -54,8 +87,9 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone_no']
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'phone_no']
 
     def __str__(self):
         return self.email
