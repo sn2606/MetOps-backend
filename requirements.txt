@@ -7,3 +7,5 @@ psycopg2
 django-filter
 meteomatics
 django-phonenumber-field[phonenumbers]
+django-rest-auth
+markdown
