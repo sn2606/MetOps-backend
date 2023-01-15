@@ -16,7 +16,7 @@ def api_home(request, *args, **kwargs):
     """
     DRF API View
     """
-    instance = Record.objects.first()
-    if instance:
-        data = RecordSerializer(instance).data
-        return Response(data)
+    # instance = Record.objects.first()
+    # if instance:
+    #     data = RecordSerializer(instance).data
+    return Response('Hello World')
