@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from .models import User
 
@@ -38,23 +39,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validate_data)
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserLoginSerializer(serializers.ModelSerializer):
+    username_validator = UnicodeUsernameValidator()
+
+    username = serializers.CharField(
+        max_length=150, validators=[username_validator])
+
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'password',
+        ]
+
+
+class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
             'id',
-            'first_name',
-            'last_name',
             'username',
+            'full_name',
             'email',
             'phone_no',
-            'password',
         ]
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
-
-    def create(self, validated_data):
-        password = validated_data.pop('password', None)
-
-        return super().create(validated_data)
