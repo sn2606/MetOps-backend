@@ -10,7 +10,7 @@ class RecordSerializer(serializers.ModelSerializer):
             'id',
             'height',
             'temperature',
-            'virtual_temperature'
+            'virtual_temperature',
             'pressure',
             'relative_humidity',
             'wind_speed',

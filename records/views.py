@@ -34,19 +34,3 @@ class RecordForQueryListAPIView(generics.ListAPIView):
 
 
 record_list_view = RecordForQueryListAPIView.as_view()
-
-
-class RecordCreateAPIView(generics.CreateAPIView):
-    queryset = Record.objects.all()
-    serializer_class = RecordSerializer
-
-    def perform_create(self, serializer):
-        record_instance = serializer.save()
-        queryid = self.request.query_params.get('query_id')
-        query_instance = MetQuery.objects.get(id=queryid)
-        if record_instance:
-            RecordForQuery.objects.create(
-                query_id=query_instance, record_id=record_instance)
-
-
-record_create_view = RecordCreateAPIView.as_view()
