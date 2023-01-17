@@ -47,8 +47,14 @@ query_response_view = QueryResponse.as_view()
 
 
 class QueryListAPIView(generics.ListAPIView):
-    queryset = MetQuery.objects.all()
     serializer_class = MetQuerySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get('userid')
+        query_id_list = list(
+            map(lambda elem: elem.id, QueryForUser.objects.filter(user_id=user_id)))
+        return MetQuery.objects.filter(id__in=query_id_list).order_by('-created')
 
 
 query_list_view = QueryListAPIView.as_view()
@@ -61,7 +67,13 @@ class QueryResponseSaveView(APIView):
         # print(request)
         try:
             user_id = request.data['user']['userid']
-            query_data = request.data['query']
+            latitude = request.data['query']['latitude']
+            longitude = request.data['query']['longitude']
+            query_data = {
+                'latitude': latitude,
+                'longitude': longitude,
+                'location': location(latitude, longitude)
+            }
             record_list = request.data['records']
             # print(record_list)
             serialized = MetQuerySerializer(data=query_data)
@@ -81,9 +93,10 @@ class QueryResponseSaveView(APIView):
                             data=record_for_query_list, many=True)
                         if serialized.is_valid(raise_exception=True):
                             serialized.save()
+                            return Response({'status': 200})
         except Exception as e:
             print(e)
-        return Response()
+            return Response({'status': 400})
 
 
 query_save_view = QueryResponseSaveView.as_view()

@@ -1,5 +1,6 @@
 from random import uniform
 from re import split, findall
+import requests
 
 
 def generate_parameter_list(invl, max):
@@ -133,3 +134,16 @@ def process_response_data(data, latitude: float, longitude: float, invl: int, ma
     }
 
     return result
+
+
+def location(latitude, longitude):
+    """
+    Get location from latitude and longitude.
+    """
+    url = f'http://api.positionstack.com/v1/reverse?access_key=00931655337dfe90ed40968a26def65a&query={latitude},{longitude}&limit=2&output=json'
+    res = requests.get(url).json()
+    if res['data']:
+        location = f"{res['data'][0]['county']}, {res['data'][0]['region']}"
+        return location
+    else:
+        return ''
