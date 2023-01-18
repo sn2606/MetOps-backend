@@ -1,4 +1,7 @@
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from query.models import MetQuery, QueryForUser
 from query.serializers import MetQuerySerializer, QueryForUserSerializer
@@ -8,6 +11,7 @@ from .serializers import RecordSerializer, RecordForQuerySerializer
 
 class RecordDetailAPIView(generics.ListAPIView):
     serializer_class = RecordSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -24,6 +28,7 @@ record_detail_view = RecordDetailAPIView.as_view()
 
 class RecordForQueryListAPIView(generics.ListAPIView):
     serializer_class = RecordForQuerySerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -34,3 +39,19 @@ class RecordForQueryListAPIView(generics.ListAPIView):
 
 
 record_list_view = RecordForQueryListAPIView.as_view()
+
+
+class RecordDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, format=None):
+        query_id = request.data['queryid']
+        query = MetQuery.objects.get(id=query_id)
+        query.delete()
+        record_id_list = request.data['recordid']
+        records = Record.objects.filter(id__in=record_id_list)
+        map(lambda item: item.delete(), records)
+        return Response('Done')
+
+
+record_delete_view = RecordDeleteView.as_view()
