@@ -4,12 +4,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime
 # import meteomatics.api
+import os
+from dotenv import read_dotenv
 
 from .utils import *
 from .models import MetQuery, QueryForUser
 from .serializers import MetQuerySerializer, QueryForUserSerializer
 from records.models import Record, RecordForQuery
 from records.serializers import RecordSerializer, RecordForQuerySerializer
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+read_dotenv(dotenv_path)
 
 
 class QueryResponse(APIView):
@@ -25,15 +30,16 @@ class QueryResponse(APIView):
                 pass
             else:
                 raise Exception('Please provide latitude and longitude')
-            username = 'armamentresearchanddevelopmentestablishment_nayak'
+            username = str(os.getenv('METOMATICS_UN'))
+            password = str(os.getenv('METOMATICS_PWD'))
             datetimenow = datetime.utcnow().strftime('%Y-%d-%mT%H:%M:%SZ')
             parameters = generate_parameter_list(invl, max)
             try:
+                response = generate_random_data_response(
+                    latitude=latitude, longitude=longitude, parameters=parameters, date=datetimenow, username=username)
                 # url = f'https://api.meteomatics.com/{datetimenow}--{datetimenow}/{",".join(parameters)}/{latitude},{longitude}/json?model=mix'
                 # response = meteomatics.api.query_api(
                 #     url=url, username=username, password=password, request_type="GET")
-                response = generate_random_data_response(
-                    latitude=latitude, longitude=longitude, parameters=parameters, date=datetimenow, username=username)
                 result = process_response_data(
                     data=response, latitude=latitude, longitude=longitude, invl=invl, max=max)
                 return Response(result)
