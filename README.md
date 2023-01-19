@@ -50,7 +50,6 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -77,7 +76,6 @@ This is a REST API backend for MetOps android application
 * [Django Rest Framework](https://www.django-rest-framework.org/)
 * [Meteomatics](https://www.meteomatics.com/en/)
 * [positionstack](https://positionstack.com/)
-* [Open-Meteo](https://open-meteo.com/en/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -119,7 +117,17 @@ The `requirements.txt` file contains all the prerequisites for the project
    ```
 4. Create a database in PostgreSQL
 5. Create a [Meteomatics](https://www.meteomatics.com/en/) account
-6. 
+6. Create a [positionstack](https://positionstack.com/) account
+7. Create a .env file in the repository folder with following parameters
+   ```env
+   SECRET_KEY = ''
+   DATABASE_NAME = ''
+   DATABASE_USER = ''
+   DATABASE_PWD = ''
+   METOMATICS_UN = ''
+   METEOMATICS_PWD = ''
+   POSITIONSTACK_API_KEY = ''
+   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
