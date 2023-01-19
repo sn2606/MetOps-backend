@@ -1,6 +1,11 @@
 from random import uniform
 from re import split, findall
 import requests
+import os
+from dotenv import read_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+read_dotenv(dotenv_path)
 
 
 def generate_parameter_list(invl, max):
@@ -140,7 +145,8 @@ def location(latitude, longitude):
     """
     Get location from latitude and longitude.
     """
-    url = f'http://api.positionstack.com/v1/reverse?access_key=00931655337dfe90ed40968a26def65a&query={latitude},{longitude}&limit=2&output=json'
+    access_key = str(os.getenv('POSITIONSTACK_API_KEY'))
+    url = f'http://api.positionstack.com/v1/reverse?access_key={access_key}&query={latitude},{longitude}&limit=2&output=json'
     res = requests.get(url).json()
     if res['data']:
         location = f"{res['data'][0]['county']}, {res['data'][0]['region']}"
